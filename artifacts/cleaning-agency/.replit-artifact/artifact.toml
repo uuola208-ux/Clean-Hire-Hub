@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Cleaning Agency Recruitment"
+version = "1.0.0"
+id = "artifacts/cleaning-agency"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23534
+
+[services.development]
+run = "pnpm --filter @workspace/cleaning-agency run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cleaning-agency", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cleaning-agency/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23534"
+BASE_PATH = "/"
