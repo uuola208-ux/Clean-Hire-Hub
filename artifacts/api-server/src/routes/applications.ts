@@ -9,11 +9,12 @@ import {
   UpdateApplicationStatusParams,
   ListApplicationsQueryParams,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/admin-auth";
 
 const router: IRouter = Router();
 
 // GET /applications
-router.get("/applications", async (req, res): Promise<void> => {
+router.get("/applications", requireAdmin, async (req, res): Promise<void> => {
   const parsed = ListApplicationsQueryParams.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -72,7 +73,7 @@ router.post("/applications", async (req, res): Promise<void> => {
 });
 
 // GET /applications/stats
-router.get("/applications/stats", async (_req, res): Promise<void> => {
+router.get("/applications/stats", requireAdmin, async (_req, res): Promise<void> => {
   const [total, byStatus, byPosition, recent] = await Promise.all([
     db.select({ count: count() }).from(applicationsTable),
     db
@@ -100,7 +101,7 @@ router.get("/applications/stats", async (_req, res): Promise<void> => {
 });
 
 // GET /applications/:id
-router.get("/applications/:id", async (req, res): Promise<void> => {
+router.get("/applications/:id", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetApplicationParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -122,7 +123,7 @@ router.get("/applications/:id", async (req, res): Promise<void> => {
 });
 
 // PATCH /applications/:id/status
-router.patch("/applications/:id/status", async (req, res): Promise<void> => {
+router.patch("/applications/:id/status", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateApplicationStatusParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -157,7 +158,7 @@ router.patch("/applications/:id/status", async (req, res): Promise<void> => {
 });
 
 // DELETE /applications/:id
-router.delete("/applications/:id", async (req, res): Promise<void> => {
+router.delete("/applications/:id", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteApplicationParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useCreateContactInquiry } from "@workspace/api-client-react";
+import { useGetSiteSettings } from "@workspace/api-client-react";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -22,6 +23,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function Contact() {
+  const { data: settings } = useGetSiteSettings();
   const { toast } = useToast();
   const [isSuccess, setIsSuccess] = useState(false);
   const createInquiry = useCreateContactInquiry();
@@ -81,10 +83,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-primary mb-1">Office Address</h4>
-                    <p className="text-foreground/70 text-sm leading-relaxed">
-                      124 Business Park Road<br />
-                      London, W1 4XY<br />
-                      United Kingdom
+                    <p className="text-foreground/70 text-sm leading-relaxed whitespace-pre-line">
+                      {settings?.address || "London, United Kingdom"}
                     </p>
                   </div>
                 </li>
@@ -95,8 +95,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-primary mb-1">Phone</h4>
-                    <p className="text-foreground/70 text-sm">020 7946 0000</p>
-                    <p className="text-foreground/70 text-sm mt-1">Mon - Fri, 9am - 5pm</p>
+                    <p className="text-foreground/70 text-sm">{settings?.phone || "Phone number to be added"}</p>
+                    <p className="text-foreground/70 text-sm mt-1">{settings?.officeHours || "Office hours to be added"}</p>
                   </div>
                 </li>
 
@@ -106,7 +106,9 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-primary mb-1">Email</h4>
-                    <p className="text-foreground/70 text-sm">hello@brightclean.co.uk</p>
+                    <a href={settings?.contactEmail ? `mailto:${settings.contactEmail}` : undefined} className="text-foreground/70 text-sm hover:text-secondary">
+                      {settings?.contactEmail || "Email to be added"}
+                    </a>
                     <p className="text-foreground/70 text-sm mt-1">We aim to reply within 24hrs</p>
                   </div>
                 </li>
@@ -117,20 +119,7 @@ export default function Contact() {
               <h3 className="font-bold text-lg mb-4 text-primary flex items-center gap-2">
                 <Clock className="h-5 w-5 text-secondary" /> Working Hours
               </h3>
-              <ul className="space-y-2 text-sm text-foreground/70">
-                <li className="flex justify-between border-b border-border pb-2">
-                  <span>Monday - Friday</span>
-                  <span className="font-medium text-primary">09:00 - 17:30</span>
-                </li>
-                <li className="flex justify-between border-b border-border pb-2">
-                  <span>Saturday</span>
-                  <span className="font-medium text-primary">10:00 - 14:00</span>
-                </li>
-                <li className="flex justify-between pt-1">
-                  <span>Sunday & Bank Holidays</span>
-                  <span className="font-medium text-primary">Closed</span>
-                </li>
-              </ul>
+              <p className="text-sm text-foreground/70 whitespace-pre-line">{settings?.officeHours || "Office hours to be added"}</p>
             </div>
           </div>
 

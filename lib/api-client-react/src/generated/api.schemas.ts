@@ -5,6 +5,65 @@
  * Cleaning Agency Recruitment API
  * OpenAPI spec version: 0.1.0
  */
+export interface AdminLoginInput {
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface AdminSession {
+  authenticated: boolean;
+  configured?: boolean;
+}
+
+export interface SiteSettings {
+  id: number;
+  companyName: string;
+  contactEmail: string;
+  phone: string;
+  address: string;
+  officeHours: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  heroImageUrl: string;
+  aboutTitle: string;
+  aboutDescription: string;
+  aboutImageUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  linkedinUrl: string;
+}
+
+export interface SiteSettingsUpdate {
+  /** @maxLength 120 */
+  companyName: string;
+  /** @maxLength 254 */
+  contactEmail: string;
+  /** @maxLength 80 */
+  phone: string;
+  /** @maxLength 500 */
+  address: string;
+  /** @maxLength 500 */
+  officeHours: string;
+  /** @maxLength 240 */
+  heroTitle: string;
+  /** @maxLength 1000 */
+  heroSubtitle: string;
+  /** @maxLength 2048 */
+  heroImageUrl: string;
+  /** @maxLength 240 */
+  aboutTitle: string;
+  /** @maxLength 2000 */
+  aboutDescription: string;
+  /** @maxLength 2048 */
+  aboutImageUrl: string;
+  /** @maxLength 2048 */
+  facebookUrl: string;
+  /** @maxLength 2048 */
+  instagramUrl: string;
+  /** @maxLength 2048 */
+  linkedinUrl: string;
+}
+
 export interface HealthStatus {
   status: string;
 }

@@ -261,8 +261,13 @@ export default function ApplicantDetail() {
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" className="shrink-0 text-foreground/40 group-hover:text-secondary" asChild>
-                      <a href={doc.filePath || '#'} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
+                      <a
+                        href={`/api/applications/${appId}/documents/${doc.id}/download`}
+                        download={doc.originalName}
+                        aria-label={`Download ${formatDocType(doc.documentType)} for ${app.fullName}`}
+                        title="Download document"
+                      >
+                        <Download className="h-4 w-4" />
                       </a>
                     </Button>
                   </li>

@@ -2,17 +2,19 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Award, HeartHandshake } from "lucide-react";
 import aboutImg from "@assets/generated_images/about-team.jpg";
+import { useGetSiteSettings } from "@workspace/api-client-react";
 
 export default function About() {
+  const { data: settings } = useGetSiteSettings();
   return (
     <div className="flex flex-col min-h-screen pt-10 pb-24">
       {/* Header */}
       <section className="container mx-auto px-4 mb-20 text-center max-w-3xl">
         <h1 className="text-5xl md:text-6xl font-bold text-primary mb-6 animate-in fade-in slide-in-from-bottom-4">
-          Raising the standard of <span className="text-secondary italic">recruitment</span>.
+          {settings?.aboutTitle || <>Raising the standard of <span className="text-secondary italic">recruitment</span>.</>}
         </h1>
         <p className="text-lg text-foreground/70 animate-in fade-in slide-in-from-bottom-6 delay-100 fill-mode-both">
-          At TJ FreshSpace, we believe that exceptional cleaning services start with exceptional people. We're on a mission to professionalize the industry by treating our cleaners with the respect they deserve.
+          {settings?.aboutDescription || "At TJ FreshSpace, we believe that exceptional cleaning services start with exceptional people. We're on a mission to professionalize the industry by treating our cleaners with the respect they deserve."}
         </p>
       </section>
 
@@ -21,11 +23,13 @@ export default function About() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] animate-in fade-in slide-in-from-left-8 delay-200 fill-mode-both">
             <img 
-              src={aboutImg} 
+              src={settings?.aboutImageUrl || aboutImg}
               alt="TJ FreshSpace Team" 
               className="object-cover w-full h-full"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=2074&auto=format&fit=crop";
+                const image = e.currentTarget;
+                image.onerror = null;
+                image.src = aboutImg;
               }}
             />
           </div>

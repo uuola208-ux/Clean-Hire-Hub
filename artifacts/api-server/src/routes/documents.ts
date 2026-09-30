@@ -2,8 +2,9 @@ import path from "path";
 import fs from "fs";
 import { Router, type IRouter } from "express";
 import multer from "multer";
-import { eq } from "drizzle-orm";
 import { db, documentsTable, applicationsTable } from "@workspace/db";
+import { and, eq } from "drizzle-orm";
+import { requireAdmin } from "../lib/admin-auth";
 
 const UPLOADS_DIR = path.resolve(process.cwd(), "uploads");
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -54,7 +55,7 @@ const upload = multer({
 const router: IRouter = Router();
 
 // GET /applications/:id/documents
-router.get("/applications/:id/documents", async (req, res): Promise<void> => {
+router.get("/applications/:id/documents", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const appId = parseInt(raw, 10);
   if (isNaN(appId)) {
@@ -68,6 +69,34 @@ router.get("/applications/:id/documents", async (req, res): Promise<void> => {
     .where(eq(documentsTable.applicationId, appId));
 
   res.json(documents);
+});
+
+router.get("/applications/:id/documents/:documentId/download", requireAdmin, async (req, res): Promise<void> => {
+  const rawApplicationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const rawDocumentId = Array.isArray(req.params.documentId) ? req.params.documentId[0] : req.params.documentId;
+  const applicationId = Number.parseInt(rawApplicationId, 10);
+  const documentId = Number.parseInt(rawDocumentId, 10);
+  if (!Number.isInteger(applicationId) || !Number.isInteger(documentId)) {
+    res.status(400).json({ error: "Invalid application or document ID" });
+    return;
+  }
+
+  const [document] = await db.select().from(documentsTable).where(
+    and(eq(documentsTable.applicationId, applicationId), eq(documentsTable.id, documentId)),
+  );
+  if (!document || !document.filePath) {
+    res.status(404).json({ error: "Document not found" });
+    return;
+  }
+
+  const fileName = path.basename(document.filePath);
+  const fullPath = path.resolve(UPLOADS_DIR, fileName);
+  if (path.dirname(fullPath) !== UPLOADS_DIR || !fs.existsSync(fullPath)) {
+    res.status(404).json({ error: "Document file not found" });
+    return;
+  }
+
+  res.download(fullPath, path.basename(document.originalName));
 });
 
 // POST /applications/:id/documents

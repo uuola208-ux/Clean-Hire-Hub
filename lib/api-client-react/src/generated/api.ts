@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminLoginInput,
+  AdminSession,
   Application,
   ApplicationInput,
   ApplicationList,
@@ -31,7 +33,9 @@ import type {
   DocumentUploadInput,
   ErrorResponse,
   HealthStatus,
-  ListApplicationsParams
+  ListApplicationsParams,
+  SiteSettings,
+  SiteSettingsUpdate
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -137,6 +141,373 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
+
+export const getGetAdminSessionUrl = () => {
+
+
+
+
+  return `/api/admin/auth/session`
+}
+
+/**
+ * @summary Check admin session
+ */
+export const getAdminSession = async ( options?: RequestInit): Promise<AdminSession> => {
+
+  return customFetch<AdminSession>(getGetAdminSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminSessionQueryKey = () => {
+    return [
+    `/api/admin/auth/session`
+    ] as const;
+    }
+
+
+export const getGetAdminSessionQueryOptions = <TData = Awaited<ReturnType<typeof getAdminSession>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminSession>>> = ({ signal }) => getAdminSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminSession>>>
+export type GetAdminSessionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Check admin session
+ */
+
+export function useGetAdminSession<TData = Awaited<ReturnType<typeof getAdminSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getLoginAdminUrl = () => {
+
+
+
+
+  return `/api/admin/auth/login`
+}
+
+/**
+ * @summary Sign in to the admin area
+ */
+export const loginAdmin = async (adminLoginInput: AdminLoginInput, options?: RequestInit): Promise<AdminSession> => {
+
+  return customFetch<AdminSession>(getLoginAdminUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(adminLoginInput)
+  }
+);}
+
+
+
+
+
+export const getLoginAdminMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginAdmin>>, TError,{data: BodyType<AdminLoginInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loginAdmin>>, TError,{data: BodyType<AdminLoginInput>}, TContext> => {
+
+const mutationKey = ['loginAdmin'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loginAdmin>>, {data: BodyType<AdminLoginInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  loginAdmin(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoginAdminMutationResult = NonNullable<Awaited<ReturnType<typeof loginAdmin>>>
+    export type LoginAdminMutationBody = BodyType<AdminLoginInput>
+    export type LoginAdminMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Sign in to the admin area
+ */
+export const useLoginAdmin = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginAdmin>>, TError,{data: BodyType<AdminLoginInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof loginAdmin>>,
+        TError,
+        {data: BodyType<AdminLoginInput>},
+        TContext
+      > => {
+      return useMutation(getLoginAdminMutationOptions(options));
+    }
+
+export const getLogoutAdminUrl = () => {
+
+
+
+
+  return `/api/admin/auth/logout`
+}
+
+/**
+ * @summary Sign out of the admin area
+ */
+export const logoutAdmin = async ( options?: RequestInit): Promise<AdminSession> => {
+
+  return customFetch<AdminSession>(getLogoutAdminUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getLogoutAdminMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutAdmin>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof logoutAdmin>>, TError,void, TContext> => {
+
+const mutationKey = ['logoutAdmin'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof logoutAdmin>>, void> = () => {
+
+
+          return  logoutAdmin(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LogoutAdminMutationResult = NonNullable<Awaited<ReturnType<typeof logoutAdmin>>>
+
+    export type LogoutAdminMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Sign out of the admin area
+ */
+export const useLogoutAdmin = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutAdmin>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof logoutAdmin>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLogoutAdminMutationOptions(options));
+    }
+
+export const getGetSiteSettingsUrl = () => {
+
+
+
+
+  return `/api/site-settings`
+}
+
+/**
+ * @summary Get public website settings
+ */
+export const getSiteSettings = async ( options?: RequestInit): Promise<SiteSettings> => {
+
+  return customFetch<SiteSettings>(getGetSiteSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSiteSettingsQueryKey = () => {
+    return [
+    `/api/site-settings`
+    ] as const;
+    }
+
+
+export const getGetSiteSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getSiteSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSiteSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSiteSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSiteSettings>>> = ({ signal }) => getSiteSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSiteSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSiteSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getSiteSettings>>>
+export type GetSiteSettingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get public website settings
+ */
+
+export function useGetSiteSettings<TData = Awaited<ReturnType<typeof getSiteSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSiteSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSiteSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateSiteSettingsUrl = () => {
+
+
+
+
+  return `/api/site-settings`
+}
+
+/**
+ * @summary Update public website settings (admin)
+ */
+export const updateSiteSettings = async (siteSettingsUpdate: SiteSettingsUpdate, options?: RequestInit): Promise<SiteSettings> => {
+
+  return customFetch<SiteSettings>(getUpdateSiteSettingsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(siteSettingsUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateSiteSettingsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSiteSettings>>, TError,{data: BodyType<SiteSettingsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSiteSettings>>, TError,{data: BodyType<SiteSettingsUpdate>}, TContext> => {
+
+const mutationKey = ['updateSiteSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSiteSettings>>, {data: BodyType<SiteSettingsUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateSiteSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSiteSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateSiteSettings>>>
+    export type UpdateSiteSettingsMutationBody = BodyType<SiteSettingsUpdate>
+    export type UpdateSiteSettingsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update public website settings (admin)
+ */
+export const useUpdateSiteSettings = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSiteSettings>>, TError,{data: BodyType<SiteSettingsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateSiteSettings>>,
+        TError,
+        {data: BodyType<SiteSettingsUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateSiteSettingsMutationOptions(options));
+    }
 
 export const getListApplicationsUrl = (params?: ListApplicationsParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -740,6 +1111,88 @@ export const useUploadDocument = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getUploadDocumentMutationOptions(options));
     }
+
+export const getDownloadApplicationDocumentUrl = (id: number,
+    documentId: number,) => {
+
+
+
+
+  return `/api/applications/${id}/documents/${documentId}/download`
+}
+
+/**
+ * @summary Download an applicant document (admin)
+ */
+export const downloadApplicationDocument = async (id: number,
+    documentId: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadApplicationDocumentUrl(id,documentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadApplicationDocumentQueryKey = (id: number,
+    documentId: number,) => {
+    return [
+    `/api/applications/${id}/documents/${documentId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadApplicationDocumentQueryOptions = <TData = Awaited<ReturnType<typeof downloadApplicationDocument>>, TError = ErrorType<ErrorResponse>>(id: number,
+    documentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadApplicationDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadApplicationDocumentQueryKey(id,documentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadApplicationDocument>>> = ({ signal }) => downloadApplicationDocument(id,documentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && documentId !== null && documentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadApplicationDocument>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadApplicationDocumentQueryResult = NonNullable<Awaited<ReturnType<typeof downloadApplicationDocument>>>
+export type DownloadApplicationDocumentQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Download an applicant document (admin)
+ */
+
+export function useDownloadApplicationDocument<TData = Awaited<ReturnType<typeof downloadApplicationDocument>>, TError = ErrorType<ErrorResponse>>(
+ id: number,
+    documentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadApplicationDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadApplicationDocumentQueryOptions(id,documentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListContactInquiriesUrl = () => {
 

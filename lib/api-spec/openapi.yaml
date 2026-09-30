@@ -30,11 +30,102 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
+  /admin/auth/session:
+    get:
+      operationId: getAdminSession
+      tags: [admin]
+      summary: Check admin session
+      responses:
+        "200":
+          description: Admin session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+
+  /admin/auth/login:
+    post:
+      operationId: loginAdmin
+      tags: [admin]
+      summary: Sign in to the admin area
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Incorrect password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/auth/logout:
+    post:
+      operationId: logoutAdmin
+      tags: [admin]
+      summary: Sign out of the admin area
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+
+  /site-settings:
+    get:
+      operationId: getSiteSettings
+      tags: [site settings]
+      summary: Get public website settings
+      responses:
+        "200":
+          description: Public website settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    patch:
+      operationId: updateSiteSettings
+      tags: [site settings]
+      summary: Update public website settings (admin)
+      security:
+        - adminSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettingsUpdate"
+      responses:
+        "200":
+          description: Updated website settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+        "401":
+          description: Admin sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /applications:
     get:
       operationId: listApplications
       tags: [applications]
       summary: List all applications (admin)
+      security:
+        - adminSession: []
       parameters:
         - name: status
           in: query
@@ -95,6 +186,8 @@ paths:
       operationId: getApplicationStats
       tags: [applications]
       summary: Get application statistics
+      security:
+        - adminSession: []
       responses:
         "200":
           description: Application statistics
@@ -108,6 +201,8 @@ paths:
       operationId: getApplication
       tags: [applications]
       summary: Get a single application
+      security:
+        - adminSession: []
       parameters:
         - name: id
           in: path
@@ -131,6 +226,8 @@ paths:
       operationId: deleteApplication
       tags: [applications]
       summary: Delete an application
+      security:
+        - adminSession: []
       parameters:
         - name: id
           in: path
@@ -152,6 +249,8 @@ paths:
       operationId: updateApplicationStatus
       tags: [applications]
       summary: Update application status
+      security:
+        - adminSession: []
       parameters:
         - name: id
           in: path
@@ -183,6 +282,8 @@ paths:
       operationId: listDocuments
       tags: [documents]
       summary: List documents for an application
+      security:
+        - adminSession: []
       parameters:
         - name: id
           in: path
@@ -228,11 +329,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /applications/{id}/documents/{documentId}/download:
+    get:
+      operationId: downloadApplicationDocument
+      tags: [documents]
+      summary: Download an applicant document (admin)
+      security:
+        - adminSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Applicant document
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /contact:
     get:
       operationId: listContactInquiries
       tags: [contact]
       summary: List all contact inquiries (admin)
+      security:
+        - adminSession: []
       responses:
         "200":
           description: List of contact inquiries
@@ -267,7 +403,97 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
 components:
+  securitySchemes:
+    adminSession:
+      type: apiKey
+      in: cookie
+      name: tj_freshspace_admin
   schemas:
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          minLength: 1
+
+    AdminSession:
+      type: object
+      required: [authenticated]
+      properties:
+        authenticated:
+          type: boolean
+        configured:
+          type: boolean
+
+    SiteSettings:
+      type: object
+      required:
+        - id
+        - companyName
+        - contactEmail
+        - phone
+        - address
+        - officeHours
+        - heroTitle
+        - heroSubtitle
+        - heroImageUrl
+        - aboutTitle
+        - aboutDescription
+        - aboutImageUrl
+        - facebookUrl
+        - instagramUrl
+        - linkedinUrl
+      properties:
+        id: { type: integer }
+        companyName: { type: string }
+        contactEmail: { type: string }
+        phone: { type: string }
+        address: { type: string }
+        officeHours: { type: string }
+        heroTitle: { type: string }
+        heroSubtitle: { type: string }
+        heroImageUrl: { type: string }
+        aboutTitle: { type: string }
+        aboutDescription: { type: string }
+        aboutImageUrl: { type: string }
+        facebookUrl: { type: string }
+        instagramUrl: { type: string }
+        linkedinUrl: { type: string }
+
+    SiteSettingsUpdate:
+      type: object
+      required:
+        - companyName
+        - contactEmail
+        - phone
+        - address
+        - officeHours
+        - heroTitle
+        - heroSubtitle
+        - heroImageUrl
+        - aboutTitle
+        - aboutDescription
+        - aboutImageUrl
+        - facebookUrl
+        - instagramUrl
+        - linkedinUrl
+      properties:
+        companyName: { type: string, maxLength: 120 }
+        contactEmail: { type: string, maxLength: 254 }
+        phone: { type: string, maxLength: 80 }
+        address: { type: string, maxLength: 500 }
+        officeHours: { type: string, maxLength: 500 }
+        heroTitle: { type: string, maxLength: 240 }
+        heroSubtitle: { type: string, maxLength: 1000 }
+        heroImageUrl: { type: string, maxLength: 2048 }
+        aboutTitle: { type: string, maxLength: 240 }
+        aboutDescription: { type: string, maxLength: 2000 }
+        aboutImageUrl: { type: string, maxLength: 2048 }
+        facebookUrl: { type: string, maxLength: 2048 }
+        instagramUrl: { type: string, maxLength: 2048 }
+        linkedinUrl: { type: string, maxLength: 2048 }
+
     HealthStatus:
       type: object
       properties:

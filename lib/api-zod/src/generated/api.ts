@@ -17,6 +17,131 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Check admin session
+ */
+export const GetAdminSessionResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "configured": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Sign in to the admin area
+ */
+
+
+
+export const LoginAdminBody = zod.object({
+  "password": zod.string().min(1)
+})
+
+export const LoginAdminResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "configured": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Sign out of the admin area
+ */
+export const LogoutAdminResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "configured": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get public website settings
+ */
+export const GetSiteSettingsResponse = zod.object({
+  "id": zod.number(),
+  "companyName": zod.string(),
+  "contactEmail": zod.string(),
+  "phone": zod.string(),
+  "address": zod.string(),
+  "officeHours": zod.string(),
+  "heroTitle": zod.string(),
+  "heroSubtitle": zod.string(),
+  "heroImageUrl": zod.string(),
+  "aboutTitle": zod.string(),
+  "aboutDescription": zod.string(),
+  "aboutImageUrl": zod.string(),
+  "facebookUrl": zod.string(),
+  "instagramUrl": zod.string(),
+  "linkedinUrl": zod.string()
+})
+
+
+/**
+ * @summary Update public website settings (admin)
+ */
+export const updateSiteSettingsBodyCompanyNameMax = 120;
+
+export const updateSiteSettingsBodyContactEmailMax = 254;
+
+export const updateSiteSettingsBodyPhoneMax = 80;
+
+export const updateSiteSettingsBodyAddressMax = 500;
+
+export const updateSiteSettingsBodyOfficeHoursMax = 500;
+
+export const updateSiteSettingsBodyHeroTitleMax = 240;
+
+export const updateSiteSettingsBodyHeroSubtitleMax = 1000;
+
+export const updateSiteSettingsBodyHeroImageUrlMax = 2048;
+
+export const updateSiteSettingsBodyAboutTitleMax = 240;
+
+export const updateSiteSettingsBodyAboutDescriptionMax = 2000;
+
+export const updateSiteSettingsBodyAboutImageUrlMax = 2048;
+
+export const updateSiteSettingsBodyFacebookUrlMax = 2048;
+
+export const updateSiteSettingsBodyInstagramUrlMax = 2048;
+
+export const updateSiteSettingsBodyLinkedinUrlMax = 2048;
+
+
+
+export const UpdateSiteSettingsBody = zod.object({
+  "companyName": zod.string().max(updateSiteSettingsBodyCompanyNameMax),
+  "contactEmail": zod.string().max(updateSiteSettingsBodyContactEmailMax),
+  "phone": zod.string().max(updateSiteSettingsBodyPhoneMax),
+  "address": zod.string().max(updateSiteSettingsBodyAddressMax),
+  "officeHours": zod.string().max(updateSiteSettingsBodyOfficeHoursMax),
+  "heroTitle": zod.string().max(updateSiteSettingsBodyHeroTitleMax),
+  "heroSubtitle": zod.string().max(updateSiteSettingsBodyHeroSubtitleMax),
+  "heroImageUrl": zod.string().max(updateSiteSettingsBodyHeroImageUrlMax),
+  "aboutTitle": zod.string().max(updateSiteSettingsBodyAboutTitleMax),
+  "aboutDescription": zod.string().max(updateSiteSettingsBodyAboutDescriptionMax),
+  "aboutImageUrl": zod.string().max(updateSiteSettingsBodyAboutImageUrlMax),
+  "facebookUrl": zod.string().max(updateSiteSettingsBodyFacebookUrlMax),
+  "instagramUrl": zod.string().max(updateSiteSettingsBodyInstagramUrlMax),
+  "linkedinUrl": zod.string().max(updateSiteSettingsBodyLinkedinUrlMax)
+})
+
+export const UpdateSiteSettingsResponse = zod.object({
+  "id": zod.number(),
+  "companyName": zod.string(),
+  "contactEmail": zod.string(),
+  "phone": zod.string(),
+  "address": zod.string(),
+  "officeHours": zod.string(),
+  "heroTitle": zod.string(),
+  "heroSubtitle": zod.string(),
+  "heroImageUrl": zod.string(),
+  "aboutTitle": zod.string(),
+  "aboutDescription": zod.string(),
+  "aboutImageUrl": zod.string(),
+  "facebookUrl": zod.string(),
+  "instagramUrl": zod.string(),
+  "linkedinUrl": zod.string()
+})
+
+
+/**
  * @summary List all applications (admin)
  */
 export const listApplicationsQueryPageDefault = 1;
@@ -229,6 +354,17 @@ export const UploadDocumentResponse = zod.object({
   "filePath": zod.string().nullish(),
   "createdAt": zod.string()
 })
+
+
+/**
+ * @summary Download an applicant document (admin)
+ */
+export const DownloadApplicationDocumentParams = zod.object({
+  "id": zod.coerce.number(),
+  "documentId": zod.coerce.number()
+})
+
+export const DownloadApplicationDocumentResponse = zod.unknown()
 
 
 /**

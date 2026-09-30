@@ -3,10 +3,12 @@ import { Sparkles, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useGetSiteSettings } from "@workspace/api-client-react";
 
 export function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: settings } = useGetSiteSettings();
 
   const links = [
     { href: "/", label: "Home" },
@@ -22,7 +24,7 @@ export function Navbar() {
           <div className="bg-secondary/10 p-2 rounded-lg group-hover:bg-secondary/20 transition-colors">
             <Sparkles className="h-6 w-6 text-secondary" />
           </div>
-          <span className="font-serif text-2xl font-bold text-primary">TJ FreshSpace</span>
+          <span className="font-serif text-2xl font-bold text-primary">{settings?.companyName || "TJ FreshSpace"}</span>
         </Link>
 
         {/* Desktop Navigation */}
