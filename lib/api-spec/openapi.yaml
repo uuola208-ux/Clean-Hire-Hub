@@ -277,6 +277,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /applications/{id}/documents/upload-url:
+    post:
+      operationId: requestApplicationDocumentUploadUrl
+      tags: [documents]
+      summary: Request a private upload URL for an application document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentUploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL and private object path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentUploadUrlResponse"
+        "400":
+          description: Invalid document metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /applications/{id}/documents:
     get:
       operationId: listDocuments
@@ -302,7 +339,7 @@ paths:
     post:
       operationId: uploadDocument
       tags: [documents]
-      summary: Upload a document for an application
+      summary: Register a document after uploading it to private object storage
       parameters:
         - name: id
           in: path
@@ -312,7 +349,7 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
               $ref: "#/components/schemas/DocumentUploadInput"
       responses:
@@ -703,10 +740,13 @@ components:
         createdAt:
           type: string
 
-    DocumentUploadInput:
+    DocumentUploadUrlRequest:
       type: object
       required:
         - documentType
+        - name
+        - size
+        - contentType
       properties:
         documentType:
           type: string
@@ -719,6 +759,69 @@ components:
             - proof-of-address
             - cleaning-certificate
             - other
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        size:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+        contentType:
+          type: string
+          enum:
+            - application/pdf
+            - application/msword
+            - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+            - image/jpeg
+            - image/png
+            - image/webp
+
+    DocumentUploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+          pattern: "^/objects/uploads/[A-Za-z0-9-]+$"
+
+    DocumentUploadInput:
+      type: object
+      required: [documentType, originalName, mimeType, fileSize, filePath]
+      properties:
+        documentType:
+          type: string
+          enum:
+            - cv
+            - passport-id
+            - right-to-work
+            - dbs-certificate
+            - national-insurance
+            - proof-of-address
+            - cleaning-certificate
+            - other
+        originalName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        mimeType:
+          type: string
+          enum:
+            - application/pdf
+            - application/msword
+            - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+            - image/jpeg
+            - image/png
+            - image/webp
+        fileSize:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+        filePath:
+          type: string
+          pattern: "^/objects/uploads/[A-Za-z0-9-]+$"
 
     ContactInquiry:
       type: object

@@ -180,6 +180,53 @@ export interface Document {
   createdAt: string;
 }
 
+export type DocumentUploadUrlRequestDocumentType = typeof DocumentUploadUrlRequestDocumentType[keyof typeof DocumentUploadUrlRequestDocumentType];
+
+
+export const DocumentUploadUrlRequestDocumentType = {
+  cv: 'cv',
+  'passport-id': 'passport-id',
+  'right-to-work': 'right-to-work',
+  'dbs-certificate': 'dbs-certificate',
+  'national-insurance': 'national-insurance',
+  'proof-of-address': 'proof-of-address',
+  'cleaning-certificate': 'cleaning-certificate',
+  other: 'other',
+} as const;
+
+export type DocumentUploadUrlRequestContentType = typeof DocumentUploadUrlRequestContentType[keyof typeof DocumentUploadUrlRequestContentType];
+
+
+export const DocumentUploadUrlRequestContentType = {
+  'application/pdf': 'application/pdf',
+  'application/msword': 'application/msword',
+  'application/vndopenxmlformats-officedocumentwordprocessingmldocument': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+} as const;
+
+export interface DocumentUploadUrlRequest {
+  documentType: DocumentUploadUrlRequestDocumentType;
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 5242880
+     */
+  size: number;
+  contentType: DocumentUploadUrlRequestContentType;
+}
+
+export interface DocumentUploadUrlResponse {
+  uploadURL: string;
+  /** @pattern ^/objects/uploads/[A-Za-z0-9-]+$ */
+  objectPath: string;
+}
+
 export type DocumentUploadInputDocumentType = typeof DocumentUploadInputDocumentType[keyof typeof DocumentUploadInputDocumentType];
 
 
@@ -194,8 +241,33 @@ export const DocumentUploadInputDocumentType = {
   other: 'other',
 } as const;
 
+export type DocumentUploadInputMimeType = typeof DocumentUploadInputMimeType[keyof typeof DocumentUploadInputMimeType];
+
+
+export const DocumentUploadInputMimeType = {
+  'application/pdf': 'application/pdf',
+  'application/msword': 'application/msword',
+  'application/vndopenxmlformats-officedocumentwordprocessingmldocument': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+} as const;
+
 export interface DocumentUploadInput {
   documentType: DocumentUploadInputDocumentType;
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  originalName: string;
+  mimeType: DocumentUploadInputMimeType;
+  /**
+     * @minimum 1
+     * @maximum 5242880
+     */
+  fileSize: number;
+  /** @pattern ^/objects/uploads/[A-Za-z0-9-]+$ */
+  filePath: string;
 }
 
 export interface ContactInquiry {

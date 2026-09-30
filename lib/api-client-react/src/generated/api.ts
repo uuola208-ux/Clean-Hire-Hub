@@ -31,6 +31,8 @@ import type {
   ContactInquiry,
   Document,
   DocumentUploadInput,
+  DocumentUploadUrlRequest,
+  DocumentUploadUrlResponse,
   ErrorResponse,
   HealthStatus,
   ListApplicationsParams,
@@ -961,6 +963,78 @@ export const useUpdateApplicationStatus = <TError = ErrorType<ErrorResponse>,
       return useMutation(getUpdateApplicationStatusMutationOptions(options));
     }
 
+export const getRequestApplicationDocumentUploadUrlUrl = (id: number,) => {
+
+
+
+
+  return `/api/applications/${id}/documents/upload-url`
+}
+
+/**
+ * @summary Request a private upload URL for an application document
+ */
+export const requestApplicationDocumentUploadUrl = async (id: number,
+    documentUploadUrlRequest: DocumentUploadUrlRequest, options?: RequestInit): Promise<DocumentUploadUrlResponse> => {
+
+  return customFetch<DocumentUploadUrlResponse>(getRequestApplicationDocumentUploadUrlUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(documentUploadUrlRequest)
+  }
+);}
+
+
+
+
+
+export const getRequestApplicationDocumentUploadUrlMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>, TError,{id: number;data: BodyType<DocumentUploadUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>, TError,{id: number;data: BodyType<DocumentUploadUrlRequest>}, TContext> => {
+
+const mutationKey = ['requestApplicationDocumentUploadUrl'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>, {id: number;data: BodyType<DocumentUploadUrlRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  requestApplicationDocumentUploadUrl(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestApplicationDocumentUploadUrlMutationResult = NonNullable<Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>>
+    export type RequestApplicationDocumentUploadUrlMutationBody = BodyType<DocumentUploadUrlRequest>
+    export type RequestApplicationDocumentUploadUrlMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Request a private upload URL for an application document
+ */
+export const useRequestApplicationDocumentUploadUrl = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>, TError,{id: number;data: BodyType<DocumentUploadUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestApplicationDocumentUploadUrl>>,
+        TError,
+        {id: number;data: BodyType<DocumentUploadUrlRequest>},
+        TContext
+      > => {
+      return useMutation(getRequestApplicationDocumentUploadUrlMutationOptions(options));
+    }
+
 export const getListDocumentsUrl = (id: number,) => {
 
 
@@ -1047,19 +1121,17 @@ export const getUploadDocumentUrl = (id: number,) => {
 }
 
 /**
- * @summary Upload a document for an application
+ * @summary Register a document after uploading it to private object storage
  */
 export const uploadDocument = async (id: number,
     documentUploadInput: DocumentUploadInput, options?: RequestInit): Promise<Document> => {
-    const formData = new FormData();
-formData.append(`documentType`, documentUploadInput.documentType);
 
   return customFetch<Document>(getUploadDocumentUrl(id),
   {
     ...options,
-    method: 'POST'
-    ,
-    body: formData
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(documentUploadInput)
   }
 );}
 
@@ -1099,7 +1171,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadDocumentMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Upload a document for an application
+ * @summary Register a document after uploading it to private object storage
  */
 export const useUploadDocument = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadDocument>>, TError,{id: number;data: BodyType<DocumentUploadInput>}, TContext>, request?: SecondParameter<typeof customFetch>}

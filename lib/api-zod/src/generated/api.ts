@@ -314,6 +314,35 @@ export const UpdateApplicationStatusResponse = zod.object({
 
 
 /**
+ * @summary Request a private upload URL for an application document
+ */
+export const RequestApplicationDocumentUploadUrlParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const requestApplicationDocumentUploadUrlBodyNameMax = 255;
+
+export const requestApplicationDocumentUploadUrlBodySizeMax = 5242880;
+
+
+
+export const RequestApplicationDocumentUploadUrlBody = zod.object({
+  "documentType": zod.enum(['cv', 'passport-id', 'right-to-work', 'dbs-certificate', 'national-insurance', 'proof-of-address', 'cleaning-certificate', 'other']),
+  "name": zod.string().min(1).max(requestApplicationDocumentUploadUrlBodyNameMax),
+  "size": zod.number().min(1).max(requestApplicationDocumentUploadUrlBodySizeMax),
+  "contentType": zod.enum(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp'])
+})
+
+export const requestApplicationDocumentUploadUrlResponseObjectPathRegExp = new RegExp('^/objects/uploads/[A-Za-z0-9-]+$');
+
+
+export const RequestApplicationDocumentUploadUrlResponse = zod.object({
+  "uploadURL": zod.string(),
+  "objectPath": zod.string().regex(requestApplicationDocumentUploadUrlResponseObjectPathRegExp)
+})
+
+
+/**
  * @summary List documents for an application
  */
 export const ListDocumentsParams = zod.object({
@@ -334,14 +363,25 @@ export const ListDocumentsResponse = zod.array(ListDocumentsResponseItem)
 
 
 /**
- * @summary Upload a document for an application
+ * @summary Register a document after uploading it to private object storage
  */
 export const UploadDocumentParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const uploadDocumentBodyOriginalNameMax = 255;
+
+export const uploadDocumentBodyFileSizeMax = 5242880;
+
+export const uploadDocumentBodyFilePathRegExp = new RegExp('^/objects/uploads/[A-Za-z0-9-]+$');
+
+
 export const UploadDocumentBody = zod.object({
-  "documentType": zod.enum(['cv', 'passport-id', 'right-to-work', 'dbs-certificate', 'national-insurance', 'proof-of-address', 'cleaning-certificate', 'other'])
+  "documentType": zod.enum(['cv', 'passport-id', 'right-to-work', 'dbs-certificate', 'national-insurance', 'proof-of-address', 'cleaning-certificate', 'other']),
+  "originalName": zod.string().min(1).max(uploadDocumentBodyOriginalNameMax),
+  "mimeType": zod.enum(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp']),
+  "fileSize": zod.number().min(1).max(uploadDocumentBodyFileSizeMax),
+  "filePath": zod.string().regex(uploadDocumentBodyFilePathRegExp)
 })
 
 export const UploadDocumentResponse = zod.object({

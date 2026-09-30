@@ -49,6 +49,7 @@ export default function Apply() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [documentUploadIssue, setDocumentUploadIssue] = useState<string | null>(null);
 
   // File states
   const [files, setFiles] = useState<Record<string, File | null>>({
@@ -115,30 +116,60 @@ export default function Apply() {
     const types = Object.keys(files);
     let successCount = 0;
     let failCount = 0;
+    const failedFiles: string[] = [];
 
     for (const type of types) {
       const file = files[type];
       if (!file) continue;
 
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch(`/api/applications/${appId}/documents?documentType=${type}`, {
+        const urlResponse = await fetch(`/api/applications/${appId}/documents/upload-url`, {
           method: 'POST',
-          body: formData
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentType: type,
+            name: file.name,
+            size: file.size,
+            contentType: file.type,
+          }),
         });
-        
-        if (res.ok) {
-          successCount++;
-        } else {
-          failCount++;
+        const uploadDetails = await urlResponse.json();
+        if (!urlResponse.ok) {
+          throw new Error(uploadDetails.error || 'Could not prepare the document upload.');
         }
+
+        const storageResponse = await fetch(uploadDetails.uploadURL, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        });
+        if (!storageResponse.ok) {
+          throw new Error('Could not upload the document to private storage.');
+        }
+
+        const registerResponse = await fetch(`/api/applications/${appId}/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentType: type,
+            originalName: file.name,
+            mimeType: file.type,
+            fileSize: file.size,
+            filePath: uploadDetails.objectPath,
+          }),
+        });
+        if (!registerResponse.ok) {
+          throw new Error('Could not finish saving the document.');
+        }
+
+        successCount++;
       } catch (err) {
         failCount++;
+        failedFiles.push(file.name);
       }
     }
 
-    return { successCount, failCount };
+    return { successCount, failCount, failedFiles };
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -159,7 +190,15 @@ export default function Apply() {
       // 2. Upload Documents
       const hasFiles = Object.values(files).some(f => f !== null);
       if (hasFiles) {
-        await uploadDocuments(appId);
+        const uploadResult = await uploadDocuments(appId);
+        if (uploadResult.failCount > 0) {
+          setDocumentUploadIssue(uploadResult.failedFiles.join(", "));
+          toast({
+            variant: "destructive",
+            title: "Application received; some documents need attention",
+            description: `These files did not upload: ${uploadResult.failedFiles.join(", ")}.`,
+          });
+        }
       }
 
       setIsSuccess(true);
@@ -185,7 +224,9 @@ export default function Apply() {
           </div>
           <h2 className="text-3xl font-serif font-bold text-primary mb-4">Application Submitted!</h2>
           <p className="text-foreground/70 mb-8 leading-relaxed">
-            Thank you for applying to TJ FreshSpace. We have received your application and documents. Our recruitment team will review your details and contact you within 2-3 working days.
+            {documentUploadIssue
+              ? `We received your application, but these documents could not be saved: ${documentUploadIssue}. Please contact our recruitment team to arrange another way to provide them.`
+              : "Thank you for applying to TJ FreshSpace. We have received your application and documents. Our recruitment team will review your details and contact you within 2-3 working days."}
           </p>
           <div className="flex flex-col gap-3">
             <Button onClick={() => setLocation('/')} className="rounded-full w-full" size="lg">

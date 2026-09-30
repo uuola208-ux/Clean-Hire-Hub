@@ -6,7 +6,21 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { DocumentUploadInputDocumentType } from './documentUploadInputDocumentType';
+import type { DocumentUploadInputMimeType } from './documentUploadInputMimeType';
 
 export interface DocumentUploadInput {
   documentType: DocumentUploadInputDocumentType;
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  originalName: string;
+  mimeType: DocumentUploadInputMimeType;
+  /**
+     * @minimum 1
+     * @maximum 5242880
+     */
+  fileSize: number;
+  /** @pattern ^/objects/uploads/[A-Za-z0-9-]+$ */
+  filePath: string;
 }
